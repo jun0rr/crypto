@@ -1,0 +1,4 @@
+--patch-module
+crypto=_
+--add-reads
+crypto=ALL-UNNAMED
