@@ -5,12 +5,14 @@
  */
 package com.jun0rr.crypto;
 
+import com.jun0rr.util.StringPad;
 import com.jun0rr.util.Unchecked;
 import com.jun0rr.util.crypto.EncryptedFile;
 import com.jun0rr.util.crypto.EncryptedFile.Progress;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
@@ -24,31 +26,36 @@ import picocli.CommandLine.Parameters;
     description = "Crypto - Encrypt/Decrypt files")
 public class Main implements Runnable {
   
-  @Option(names = {"-e", "--encrypt"}, description = "Encrypt Mode")
-  public boolean encrypt;
+  public static class Mode {
+    @Option(names = {"-e", "--encrypt"}, required = true, description = "Encrypt Mode")
+    public boolean encrypt;
+
+    @Option(names = {"-d", "--decrypt"}, required = true, description = "Decrypt Mode")
+    public boolean decrypt;
+  }
   
-  @Option(names = {"-d", "--decrypt"}, description = "Decrypt Mode")
-  public boolean decrypt;
+  @ArgGroup(exclusive = true, multiplicity = "1")
+  public Mode mode;
   
-  @Option(names = {"-b", "--base64"}, description = "Enable Base64 Codec")
+  @Option(names = {"-b", "--base64"}, defaultValue = "true", negatable = true, description = "Disable Base64 Codec")
   public boolean base64;
   
-  @Option(names = {"-g", "--gzip"}, description = "Enable Gzip Codec")
+  @Option(names = {"-g", "--no-gzip"}, defaultValue = "true", negatable = true, description = "Disable Gzip Codec")
   public boolean gzip;
   
   @Option(names = {"-r", "--progress"}, description = "Show Progress on STDOUT")
   public boolean progress;
   
   @Option(names = {"-s", "--split"}, arity = "0..1", description = "Split file <size[K|M|G]>", converter = SizeConverter.class)
-  public Long split;
+  public Size split;
   
-  @Option(names = {"-p", "--password"}, arity = "1", description = "Password")
+  @Option(names = {"-p", "--password"}, arity = "1", description = "Password", required = true)
   public String passwd;
   
-  @Parameters(index = "0")
+  @Parameters(index = "0", description = "Source file")
   public Path src;
   
-  @Parameters(index = "1")
+  @Parameters(index = "1", description = "Destination file")
   public Path dst;
   
   @Override
@@ -61,23 +68,25 @@ public class Main implements Runnable {
         .disableGzipCodec();
     if(base64) f = f.enableBase64Codec();
     if(gzip) f = f.enableGzipCodec();
-    if(split > 0) f = f.split(split);
+    if(split != null) f = f.split(split.getSize());
+    System.out.printf("[Crypto-0.1]>> %s file...%n", mode.encrypt ? "Encrypting" : "Decrypting");
+    System.out.println("  - Input File.....: " + src);
+    System.out.println("  - Output File....: " + dst);
+    System.out.println("  - Base64 Codec...: " + base64);
+    System.out.println("  - Gzip Codec.....: " + gzip);
+    System.out.println("  - Split File.....: " + (split != null ? split : false));
     Consumer<Progress> c = p->{};
     if(progress) {
-      c = p->System.out.println(p.getProgressBar());
+      c = new ProgressListener();
+      System.out.print("  - Progress.......: [");
     }
     EncryptedFile ef = f;
     Consumer<Progress> cs = c;
-    if(encrypt) {
-      System.out.println("[Crypto-0.1]>> Encripting file: " + src);
+    if(mode.encrypt) {
       Unchecked.call(()->ef.encrypt(cs));
     }
-    else if(decrypt) {
-      System.out.println("[Crypto-0.1]>> Decripting file: " + src);
-      Unchecked.call(()->ef.decrypt(cs));
-    }
     else {
-      throw new IllegalArgumentException("Mode not selected (--encrypt/--decrypt)");
+      Unchecked.call(()->ef.decrypt(cs));
     }
   }
   

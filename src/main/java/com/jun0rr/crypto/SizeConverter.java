@@ -12,7 +12,7 @@ import picocli.CommandLine.ITypeConverter;
  *
  * @author F6036477
  */
-public class SizeConverter implements ITypeConverter<Long> {
+public class SizeConverter implements ITypeConverter<Size> {
   
   private static final Map<String,Long> units = Map.of(
       "k", 1024L, 
@@ -21,17 +21,17 @@ public class SizeConverter implements ITypeConverter<Long> {
   );
 
   @Override
-  public Long convert(String string) {
-    String unit = string.substring(string.length() -1).toLowerCase();
+  public Size convert(String value) {
+    String unit = value.substring(value.length() -1).toLowerCase();
     Optional<Long> mult = units.entrySet().stream()
         .filter(e->unit.equals(e.getKey()))
         .map(e->e.getValue())
         .findAny();
     if(mult.isPresent()) {
-      return Long.parseLong(string.substring(0, string.length() -1)) * mult.get();
+      return new Size(value, Long.parseLong(value.substring(0, value.length() -1)) * mult.get());
     }
     else {
-      return Long.parseLong(string);
+      return new Size(value, Long.parseLong(value));
     }
   }
   

@@ -14,15 +14,27 @@ import org.junit.jupiter.api.Test;
  */
 public class TestMain {
   
+  //public static final String SRC = "/home/juno/Documentos/CRLVDigitalDetran.pdf";
+  
+  public static final String SRC = "C:/Java/certificado_internet_das_coisas.pdf";
+  
+  //public static final String DST = "/home/juno/Documentos/CRLVDigitalDetran_encrypted.txt.gz";
+  
+  public static final String DST = "C:/Java/certificado_internet_das_coisas.txt.gz";
+  
+  //public static final String DST2 = "/home/juno/Documentos/CRLVDigitalDetran2.pdf";
+  
+  public static final String DST2 = "C:/Java/certificado_internet_das_coisas2.pdf";
+  
   @Test
-  public void test_encrypt() {
-    String[] args = {"-e", "-b", "-g", "-r", "-s=30k", "-p=inadonuj", "/home/juno/Documentos/CRLVDigitalDetran.pdf", "/home/juno/Documentos/CRLVDigitalDetran_encrypted.txt.gz"};
+  public void test_0_encrypt() {
+    String[] args = {"-e", "-r", "-s=405k", "-p=inadonuj", SRC, DST};
     new Main().processCmd(args);
   }
   
   @Test
-  public void test_decrypt() {
-    String[] args = {"-d", "-b", "-g", "-r", "-s=30k", "-p=inadonuj", "/home/juno/Documentos/CRLVDigitalDetran_encrypted.txt.gz", "/home/juno/Documentos/CRLVDigitalDetran2.pdf"};
+  public void test_1_decrypt() {
+    String[] args = {"-d", "-r", "-s=405k", "-p=inadonuj", DST, DST2};
     new Main().processCmd(args);
   }
   
