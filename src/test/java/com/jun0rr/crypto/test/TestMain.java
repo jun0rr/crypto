@@ -26,13 +26,13 @@ public class TestMain {
   
   public static final String DST2 = "C:/Java/certificado_internet_das_coisas2.pdf";
   
-  @Test
+  //@Test
   public void test_0_encrypt() {
     String[] args = {"-e", "-r", "-s=405k", "-p=inadonuj", SRC, DST};
     new Main().processCmd(args);
   }
   
-  @Test
+  //@Test
   public void test_1_decrypt() {
     String[] args = {"-d", "-r", "-s=405k", "-p=inadonuj", DST, DST2};
     new Main().processCmd(args);

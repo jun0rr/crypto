@@ -1,4 +1,4 @@
 --patch-module
-crypto=_
+jun0rr.crypto=_
 --add-reads
-crypto=ALL-UNNAMED
+jun0rr.crypto=ALL-UNNAMED
